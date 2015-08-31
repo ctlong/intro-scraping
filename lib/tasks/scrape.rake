@@ -38,7 +38,7 @@ namespace :scrape do
     require "open-uri"
     require "nokogiri"
 
-    companies = Company.all.limit(100)
+    companies = Company.all
 
     companies.each do |company|
       url = "https://www.google.com/finance?q=NASDAQ:#{company.symbol}&fstype=ii"
