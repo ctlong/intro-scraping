@@ -1,1 +1,10 @@
 <h1>Hello World!</h1>
+
+<div>
+  <% @countries.each do |country| %>
+    <h2><%= country.name %></h2>
+    <% country.players.each do |player| %>
+      <p><%= player.name %> | <%= player.position %> | <%= player.dob %></p>
+    <% end %>
+  <% end %>
+</div>
