@@ -51,4 +51,55 @@ namespace :scrape do
       end
     end
   end
+
+  desc "countries of great soccer players"
+  task :add_countries => :environment do
+    require "open-uri"
+    require "nokogiri"
+
+    url = "https://en.wikipedia.org/wiki/FIFA_100"
+    url_data = open(url).read
+    html_doc = Nokogiri::HTML(url_data)
+    specific_format = "tr > td > h2 > span > a"
+    list_of_countries = html_doc.css(specific_format)
+    list_of_countries.each do |country|
+      Country.create(name: country.text)
+    end
+  end
+
+  desc "List of great soccer players"
+  task :add_players => :environment do
+    require "open-uri"
+    require "nokogiri"
+
+    url = "https://en.wikipedia.org/wiki/FIFA_100"
+    url_data = open(url).read
+    html_doc = Nokogiri::HTML(url_data)
+    countries = Country.all
+    country_format = "table table"
+    country_players = html_doc.css(country_format)
+    countries.each_with_index do |country,index|
+      player_format = "tr td"
+      players = country_players[index].css(player_format)
+      info_list = ["name","position","dob"]
+      new_player = country.players.new
+      info_index = 0
+      players.each do |player|
+        if "#{info_list[info_index]}" == 'name'
+          new_player["#{info_list[info_index]}"] = player.text.gsub('*','')
+        else
+          new_player["#{info_list[info_index]}"] = player.text
+        end
+        if "#{info_list[info_index]}" == 'dob'
+          new_player.save
+          new_player = country.players.new
+        end
+        if info_index < 2
+          info_index += 1
+        else
+          info_index = 0
+        end
+      end
+    end
+  end
 end
